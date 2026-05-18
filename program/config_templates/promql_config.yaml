@@ -1,0 +1,14 @@
+queries:
+  - id: "query_1"
+    expr: 'up{job="node_exporter"}'
+    type: instant
+    export_labels: 
+      - "instance"
+      - "job"
+
+  - id: "query_range_1"
+    expr: 'cpu_usage_seconds_total{job="node_exporter"}'
+    type: range
+    export_labels: 
+      - "instance"
+      - "job"

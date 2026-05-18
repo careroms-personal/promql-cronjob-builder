@@ -1,0 +1,31 @@
+# Config file is relative path to pipeline parent dir
+config_file_path: "./"
+
+pipelines:
+  - id: cpu_query
+    metadata:
+      cluster_name: sandbox_cluster
+      environment: sandbox
+    promql_config: node_cpu_usage
+    output_config: postgres_sandbox_cpu
+    
+    server_configs:
+      - sandbox_prometheus
+    range_configs:
+      - 30d_4_5m
+      - 7d_4_1m
+    
+
+  - id: memory_query
+    metadata:
+      cluster_name: sandbox_cluster
+      environment: sandbox
+    promql_config: node_memory_usage
+    output_config: postgres_sandbox_memory
+
+    server_configs:
+      - sandbox_prometheus   
+    range_configs:
+      - 30d_4_5m
+      - 7d_4_1m
+    

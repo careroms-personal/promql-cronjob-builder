@@ -1,0 +1,5 @@
+ranges:
+  - id: range_1
+    backward_amt: 30d # Backward amount per step. Only accept d=day, m=month, y=year
+    backward_steps: 4 # How many backward step
+    query_step: 5m # Query range window size (Prometheus resolution)
