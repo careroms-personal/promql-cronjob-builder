@@ -5,14 +5,12 @@ class ConfigFiles(BaseModel):
   file_path: str
   server_config: str
   promql_config: str
-  output_config: str
   range_config: str
 
 class PipelineItem(BaseModel):
   id: str
   metadata: dict[str, Any]
   promql_config_id: str
-  output_config_id: str
   range_config_id: str
 
 class PipelineConfig(BaseModel):

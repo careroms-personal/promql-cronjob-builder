@@ -1,10 +1,9 @@
 cronjob_pipeline_export_file: "./query_pipeline.yaml"
 
 config_files:
-  file_path: "./" # Realateive to pipeline config file
+  file_path: "./" # Relative to pipeline config file
   server_config: "server_config.yaml"
   promql_config: "promql_config.yaml"
-  output_config: "output_config.yaml"
   range_config: "range_config.yaml"
 
 server_configs:
@@ -16,6 +15,4 @@ pipelines:
       cluster_name: REQUEST
       environment: REQUEST
     promql_config_id: query_range_1
-    output_config_id: output_1
     range_config_id: range_1
-    

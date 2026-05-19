@@ -12,10 +12,11 @@ See `AI-PROGRAM-GUIDE.md` for structure. See `AI-PYTHON-GUIDE.md` for code conve
 | YAML template | Model file | Top-level model |
 |---|---|---|
 | `cronjob_pipeline_config.yaml` | `cronjob_pipeline_config_models.py` | `PipelineConfig` |
-| `server_config.yaml` | `server_config_models.py` | `ServersConfig` |
+| `server_config.yaml` | `server_config_models.py` | `ServerConfigs` |
 | `promql_config.yaml` | `promql_config_models.py` | `PromqlConfigs` |
-| `range_config.yaml` | `range_config_models.py` | `RangesConfig` |
-| `output_config.yaml` | `output_config_models.py` | `OutputsConfig` |
+| `range_config.yaml` | `range_config_models.py` | `RangeConfigs` |
+
+`output_config.yaml` exists as a standalone reference template but is NOT part of the pipeline — output handling is left to the cronjob consumer.
 
 One YAML template = one model file. Never merge models from different config files.
 
@@ -23,28 +24,27 @@ One YAML template = one model file. Never merge models from different config fil
 
 ## cronjob_pipeline_config.yaml → `cronjob_pipeline_config_models.py`
 
-Entry point config — passed to `main.py -c`. References other configs by string ID.
+Entry point config — passed to `main.py -c`. Defines what to query (server + promql + range only).
 
 ```yaml
-config_file_path: "./"
+cronjob_pipeline_export_file: "./query_pipeline.yaml"  # output path for the built cronjob YAML
 
 config_files:
-  server_config: "./server_config.yaml"
-  promql_config: "./promql_config.yaml"
-  output_config: "./output_config.yaml"
-  range_config: "./range_config.yaml"
+  file_path: "./"                    # base dir relative to this file's location
+  server_config: "server_config.yaml"
+  promql_config: "promql_config.yaml"
+  range_config: "range_config.yaml"
 
-server_configs:                    # list[str] — shared across all pipelines
+server_configs:                      # list[str] — shared across all pipelines
   - server_1
 
 pipelines:
   - id: cpu_query_120_days_back
     metadata:
-      cluster_name: REQUEST        # free-form — any key/value accepted
+      cluster_name: REQUEST          # free-form — any key/value accepted
       environment: REQUEST
-    promql_config: query_range_1   # str — references QueryConfig.id
-    output_config: output_1        # str — references OutputConfig.id
-    range_config: range_1          # str — references RangeConfig.id
+    promql_config_id: query_range_1  # str — references QueryConfig.id
+    range_config_id: range_1         # str — references RangeConfig.id
 ```
 
 **Models:** `PipelineConfig` → `ConfigFiles` + `server_configs` + `list[PipelineItem]`
@@ -53,7 +53,8 @@ pipelines:
 
 | Field | Type | Note |
 |---|---|---|
-| `config_file_path` | `str` | base path to locate sub-config files |
+| `pipeline_file_path` | `Optional[str]` | injected by Processor at runtime — not in YAML |
+| `cronjob_pipeline_export_file` | `str` | output file path for the built cronjob YAML |
 | `config_files` | `ConfigFiles` | paths to each sub-config YAML file |
 | `server_configs` | `list[str]` | shared across all pipelines — list of ServerConfig IDs |
 | `pipelines` | `list[PipelineItem]` | pipeline definitions |
@@ -62,18 +63,18 @@ pipelines:
 
 | Field | Type | Note |
 |---|---|---|
-| `server_config` | `str` | path to server_config.yaml |
-| `promql_config` | `str` | path to promql_config.yaml |
-| `output_config` | `str` | path to output_config.yaml |
-| `range_config` | `str` | path to range_config.yaml |
+| `file_path` | `str` | base dir, combined with each filename below |
+| `server_config` | `str` | filename of server_config YAML |
+| `promql_config` | `str` | filename of promql_config YAML |
+| `range_config` | `str` | filename of range_config YAML |
 
 `PipelineItem` fields:
 
 | Field | Type | Note |
 |---|---|---|
+| `id` | `str` | unique pipeline identifier |
 | `metadata` | `dict[str, Any]` | free-form, no fixed schema |
 | `promql_config_id` | `str` | references `QueryConfig.id` |
-| `output_config_id` | `str` | references `OutputConfig.id` |
 | `range_config_id` | `str` | references `RangeConfig.id` |
 
 ---
@@ -83,7 +84,7 @@ pipelines:
 Prometheus server connection settings.
 
 ```yaml
-servers:
+server_configs:
   - id: server_1
     url: "http://localhost:9090"
     api: "api/v1"        # optional, default api/v1
@@ -93,16 +94,16 @@ servers:
     headers: {}
 ```
 
-**Models:** `ServersConfig` → `list[ServerConfig]`
+**Models:** `ServerConfigs` → `list[ServerConfig]`
 
-- `auth` is `Optional[AuthConfig]` — `AuthConfig` has `type` + optional `token` / `username` / `password`
+- `auth` is `Optional[AuthConfig]` — has `type` + optional `token` / `username` / `password`
 - `headers` defaults to `{}`
 
 ---
 
 ## promql_config.yaml → `promql_config_models.py`
 
-PromQL range query definitions. This project executes range queries only — `type` field does not exist.
+PromQL range query definitions. Range queries only — no `type` field.
 
 ```yaml
 promql_configs:
@@ -123,60 +124,16 @@ promql_configs:
 
 ## range_config.yaml → `range_config_models.py`
 
-Time range settings for `range`-type queries.
+Time range settings for range queries.
 
 ```yaml
-ranges:
+range_configs:
   - id: range_1
     backward_amt: 30d    # d=day, m=month, y=year
     backward_steps: 4    # number of steps back
     query_step: 5m       # Prometheus resolution
 ```
 
-**Models:** `RangesConfig` → `list[RangeConfig]`
+**Models:** `RangeConfigs` → `list[RangeConfig]`
 
 - `backward_amt` and `query_step` are plain `str` — format not validated by pydantic
-
----
-
-## output_config.yaml → `output_config_models.py`
-
-Output destinations. DB credentials live in K8S secrets — only env key names are stored.
-
-```yaml
-db_connection_configs:
-  - id: postgres_1
-    type: postgres
-    env_keys:
-      host: OUTPUT_1_HOST        # env var key name — not the secret value
-      port: OUTPUT_1_PORT
-      username: OUTPUT_1_USERNAME
-      password: OUTPUT_1_PASSWORD
-      database: OUTPUT_1_DATABASE
-
-schema_labels_mapping_configs:
-  - id: mapping_1
-    mapping:
-      - query_label: instance
-        table_column: instance
-      - query_label: job
-        table_column: job
-
-outputs:
-  - id: output_1
-    db_config:
-      connections: postgres_1    # str — references DbConnectionConfig.id
-      table: table_1
-    mapping_config: mapping_1    # str — references SchemaLabelsMappingConfig.id
-```
-
-**Models:** `OutputsConfig` with three sections:
-
-| Section | Model | Note |
-|---|---|---|
-| `db_connection_configs` | `list[DbConnectionConfig]` | named reusable connection profiles |
-| `schema_labels_mapping_configs` | `list[SchemaLabelsMappingConfig]` | label → column mappings |
-| `outputs` | `list[OutputConfig]` | embeds `DbEnvKeys` directly; references mapping by ID |
-
-**Key design:** `OutputDbConfig.connections` is a `str` ID reference to `DbConnectionConfig.id`.
-Never print or log `DbEnvKeys` field values — they are env key names that resolve to secrets at runtime.
