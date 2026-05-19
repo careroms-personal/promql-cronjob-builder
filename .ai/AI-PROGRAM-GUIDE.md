@@ -77,7 +77,9 @@ cronjob_pipeline_config.yaml
     │
     ├── CronjobConfigBuilder(pipeline_config, config_load_model)
     │       → resolves server IDs → list[CronjobServerConfig]
-    │       → per pipeline: resolves promql_config_id + range_config_id
+    │       → per pipeline: resolves promql_config_ids + range_config_ids
+    │       → itertools.product(promql_configs, range_configs) → N×M entries
+    │       → each entry id: {pipeline_id}__{promql_id}__{range_id}
     │       → returns CronjobConfig
     │
     └── CronjobConfigExporter(pipeline_config, cronjob_config)

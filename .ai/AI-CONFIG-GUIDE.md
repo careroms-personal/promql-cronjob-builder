@@ -43,8 +43,10 @@ pipelines:
     metadata:
       cluster_name: REQUEST          # free-form — any key/value accepted
       environment: REQUEST
-    promql_config_id: query_range_1  # str — references QueryConfig.id
-    range_config_id: range_1         # str — references RangeConfig.id
+    promql_config_ids:               # list[str] — one or more QueryConfig IDs
+      - query_range_1
+    range_config_ids:                # list[str] — one or more RangeConfig IDs
+      - range_1
 ```
 
 **Models:** `PipelineConfig` → `ConfigFiles` + `server_configs` + `list[PipelineItem]`
@@ -74,8 +76,10 @@ pipelines:
 |---|---|---|
 | `id` | `str` | unique pipeline identifier |
 | `metadata` | `dict[str, Any]` | free-form, no fixed schema |
-| `promql_config_id` | `str` | references `QueryConfig.id` |
-| `range_config_id` | `str` | references `RangeConfig.id` |
+| `promql_config_ids` | `list[str]` | one or more `QueryConfig.id` references |
+| `range_config_ids` | `list[str]` | one or more `RangeConfig.id` references |
+
+Each pipeline expands to `len(promql_config_ids) × len(range_config_ids)` entries via `itertools.product`. Each gets id `{pipeline_id}__{promql_id}__{range_id}`.
 
 ---
 

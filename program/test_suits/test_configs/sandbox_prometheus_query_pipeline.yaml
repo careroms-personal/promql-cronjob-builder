@@ -7,71 +7,13 @@ servers:
     type: none
   headers: {}
 pipelines:
-- id: cpu_query_30d_4_5m
+- id: node_cpu_rate_query_10m_windows_size__node_cpu_usage_rate_10m__7d_4_1m
   metadata:
     cluster_name: sandbox_cluster
     environment: sandbox
   promql_config:
-    id: node_cpu_usage
-    expr: rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[5m])
-    export_labels:
-    - instance
-  range_config:
-    id: 30d_4_5m
-    backward_amt: 30d
-    backward_steps: 4
-    query_step: 5m
-  output_config:
-    id: postgres_sandbox_cpu_30d_4_5m
-    db_type: postgres
-    connection_config:
-      host_env: SANDBOX_POSGRES_HOST
-      port_env: SANDBOX_POSGRES_PORT
-      username_env: SANDBOX_POSGRES_USERNAME
-      password_env: SANDBOX_POSGRES_PASSWORD
-      database_env: SANDBOX_POSGRES_DATABASE
-      table: node_cpu_usage_30d_4_5m
-      mapping:
-        id: instance2node
-        mapping:
-        - query_label: instance
-          table_column: node
-- id: memory_query_30d_4_5m
-  metadata:
-    cluster_name: sandbox_cluster
-    environment: sandbox
-  promql_config:
-    id: node_memory_usage
-    expr: node_memory_Active_bytes{job="node_exporter"}
-    export_labels:
-    - instance
-  range_config:
-    id: 30d_4_5m
-    backward_amt: 30d
-    backward_steps: 4
-    query_step: 5m
-  output_config:
-    id: postgres_sandbox_memory_30d_4_5m
-    db_type: postgres
-    connection_config:
-      host_env: SANDBOX_POSGRES_HOST
-      port_env: SANDBOX_POSGRES_PORT
-      username_env: SANDBOX_POSGRES_USERNAME
-      password_env: SANDBOX_POSGRES_PASSWORD
-      database_env: SANDBOX_POSGRES_DATABASE
-      table: node_memory_usage_30d_4_5m
-      mapping:
-        id: instance2node
-        mapping:
-        - query_label: instance
-          table_column: node
-- id: cpu_query_7d_4_1m
-  metadata:
-    cluster_name: sandbox_cluster
-    environment: sandbox
-  promql_config:
-    id: node_cpu_usage
-    expr: rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[5m])
+    id: node_cpu_usage_rate_10m
+    expr: rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[10m])
     export_labels:
     - instance
   range_config:
@@ -79,22 +21,49 @@ pipelines:
     backward_amt: 7d
     backward_steps: 4
     query_step: 1m
-  output_config:
-    id: postgres_sandbox_cpu_7d_4_1m
-    db_type: postgres
-    connection_config:
-      host_env: SANDBOX_POSGRES_HOST
-      port_env: SANDBOX_POSGRES_PORT
-      username_env: SANDBOX_POSGRES_USERNAME
-      password_env: SANDBOX_POSGRES_PASSWORD
-      database_env: SANDBOX_POSGRES_DATABASE
-      table: node_cpu_usage_7d_4_1m
-      mapping:
-        id: instance2node
-        mapping:
-        - query_label: instance
-          table_column: node
-- id: memory_query_7d_4_1m
+- id: node_cpu_rate_query_10m_windows_size__node_cpu_usage_rate_10m__7d_4_5m
+  metadata:
+    cluster_name: sandbox_cluster
+    environment: sandbox
+  promql_config:
+    id: node_cpu_usage_rate_10m
+    expr: rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[10m])
+    export_labels:
+    - instance
+  range_config:
+    id: 7d_4_5m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 5m
+- id: node_cpu_rate_query_120m_windows_size__node_cpu_usage_rate_120m__7d_4_30m
+  metadata:
+    cluster_name: sandbox_cluster
+    environment: sandbox
+  promql_config:
+    id: node_cpu_usage_rate_120m
+    expr: rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[120m])
+    export_labels:
+    - instance
+  range_config:
+    id: 7d_4_30m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 30m
+- id: node_cpu_rate_query_120m_windows_size__node_cpu_usage_rate_120m__7d_4_60m
+  metadata:
+    cluster_name: sandbox_cluster
+    environment: sandbox
+  promql_config:
+    id: node_cpu_usage_rate_120m
+    expr: rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[120m])
+    export_labels:
+    - instance
+  range_config:
+    id: 7d_4_60m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 60m
+- id: node_memory_active_usage__node_memory_usage__7d_4_1m
   metadata:
     cluster_name: sandbox_cluster
     environment: sandbox
@@ -108,18 +77,45 @@ pipelines:
     backward_amt: 7d
     backward_steps: 4
     query_step: 1m
-  output_config:
-    id: postgres_sandbox_memory_7d_4_1m
-    db_type: postgres
-    connection_config:
-      host_env: SANDBOX_POSGRES_HOST
-      port_env: SANDBOX_POSGRES_PORT
-      username_env: SANDBOX_POSGRES_USERNAME
-      password_env: SANDBOX_POSGRES_PASSWORD
-      database_env: SANDBOX_POSGRES_DATABASE
-      table: node_memory_usage_7d_4_1m
-      mapping:
-        id: instance2node
-        mapping:
-        - query_label: instance
-          table_column: node
+- id: node_memory_active_usage__node_memory_usage__7d_4_5m
+  metadata:
+    cluster_name: sandbox_cluster
+    environment: sandbox
+  promql_config:
+    id: node_memory_usage
+    expr: node_memory_Active_bytes{job="node_exporter"}
+    export_labels:
+    - instance
+  range_config:
+    id: 7d_4_5m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 5m
+- id: node_memory_active_usage__node_memory_usage__7d_4_30m
+  metadata:
+    cluster_name: sandbox_cluster
+    environment: sandbox
+  promql_config:
+    id: node_memory_usage
+    expr: node_memory_Active_bytes{job="node_exporter"}
+    export_labels:
+    - instance
+  range_config:
+    id: 7d_4_30m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 30m
+- id: node_memory_active_usage__node_memory_usage__7d_4_60m
+  metadata:
+    cluster_name: sandbox_cluster
+    environment: sandbox
+  promql_config:
+    id: node_memory_usage
+    expr: node_memory_Active_bytes{job="node_exporter"}
+    export_labels:
+    - instance
+  range_config:
+    id: 7d_4_60m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 60m

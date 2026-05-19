@@ -14,5 +14,7 @@ pipelines:
     metadata:
       cluster_name: REQUEST
       environment: REQUEST
-    promql_config_id: query_range_1
-    range_config_id: range_1
+    promql_config_ids: 
+      - query_range_1
+    range_config_ids: 
+      - range_1

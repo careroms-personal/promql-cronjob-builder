@@ -1,4 +1,5 @@
 import sys
+import itertools
 
 from models.cronjob_pipeline_config_models import PipelineConfig
 from models.server_config_models import ServerConfig
@@ -54,19 +55,27 @@ class CronjobConfigBuilder:
 
     pipelines = []
     for p in self.pipeline_config.pipelines:
-      promql_config = self._find_by_id(
-        self.config_model.promql_configs.promql_configs, p.promql_config_id, "promql_config"
-      )
-      range_config = self._find_by_id(
-        self.config_model.range_configs.range_configs if self.config_model.range_configs else [],
-        p.range_config_id, "range_config"
-      )
-      pipelines.append(CronjobPipelineConfig(
-        id=p.id,
-        metadata=p.metadata,
-        promql_config=self._create_cronjob_promql_config(promql_config),
-        range_config=self._create_cronjob_range_config(range_config),
-      ))
+      promql_configs = [
+        self._find_by_id(
+          self.config_model.promql_configs.promql_configs, pid, "promql_config"
+        )
+        for pid in p.promql_config_ids
+      ]
+      range_configs = [
+        self._find_by_id(
+          self.config_model.range_configs.range_configs if self.config_model.range_configs else [],
+          rid, "range_config"
+        )
+        for rid in p.range_config_ids
+      ]
+
+      for promql_config, range_config in itertools.product(promql_configs, range_configs):
+        pipelines.append(CronjobPipelineConfig(
+          id=f"{p.id}__{promql_config.id}__{range_config.id}",
+          metadata=p.metadata,
+          promql_config=self._create_cronjob_promql_config(promql_config),
+          range_config=self._create_cronjob_range_config(range_config),
+        ))
 
     return CronjobConfig(servers=servers, pipelines=pipelines)
 
