@@ -15,14 +15,27 @@ schema_labels_mapping_configs:
       - query_label: instance
         table_column: node
 
-outputs:
-  - id: postgres_sandbox_cpu
+output_configs:
+  - id: postgres_sandbox_cpu_30d_4_5m
     db_config:
       connections: postgres_sandbox
-      table: node_cpu_usage
+      table: node_cpu_usage_30d_4_5m
     mapping_config: instance2node
-  - id: postgres_sandbox_memory
+
+  - id: postgres_sandbox_memory_30d_4_5m
     db_config:
       connections: postgres_sandbox
-      table: node_memory_usage
+      table: node_memory_usage_30d_4_5m
+    mapping_config: instance2node
+
+  - id: postgres_sandbox_cpu_7d_4_1m
+    db_config:
+      connections: postgres_sandbox
+      table: node_cpu_usage_7d_4_1m
+    mapping_config: instance2node
+
+  - id: postgres_sandbox_memory_7d_4_1m
+    db_config:
+      connections: postgres_sandbox
+      table: node_memory_usage_7d_4_1m
     mapping_config: instance2node

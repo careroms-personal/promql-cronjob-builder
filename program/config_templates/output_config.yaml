@@ -17,7 +17,7 @@ schema_labels_mapping_configs:
       - query_label: job
         table_column: job
 
-outputs:
+output_configs:
   - id: output_1
     db_config:
       connections: postgres_1

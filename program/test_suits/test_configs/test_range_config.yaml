@@ -1,4 +1,4 @@
-ranges:
+range_configs:
   - id: 30d_4_5m
     backward_amt: 30d # Backward amount per step. Only accept d=day, m=month, y=year
     backward_steps: 4 # How many backward step

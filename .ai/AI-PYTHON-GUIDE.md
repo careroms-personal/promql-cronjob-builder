@@ -1,100 +1,51 @@
-# pyconfplate — AI Guide
+# promql-cronjob-builder — Python Guide
 <!-- last human review: 2026 Mar 24 -->
-<!-- last ai update: 2026 May 17 -->
+<!-- last ai update: 2026-05-19 -->
 
-Quick reference for AI assistants working in this codebase.
-See `vibe-code-rule.yaml` for project rules.
-
----
-
-## Project Purpose
-
-Boilerplate for a Python CLI program that reads a YAML config file and runs a pipeline of executors orchestrated by a Processor. Each executor has a single duty, returns a typed result, and passes it to the next executor in the chain.
-
----
-
-## Project Structure
-
-```
-pyconfplate/
-├── vibe-code-rule.yaml              # AI instruction manifest — read first
-├── pyproject.toml                   # dependencies and build config (only place for deps)
-├── .ai/
-│   └── AI-PYTHON-GUIDE.md           # this file
-└── program/
-    ├── app/
-    │   └── main.py                  # CLI entry point — do not add logic here
-    ├── models/
-    │   ├── config_models.py         # pydantic config models (AppConfig and sub-models)
-    │   └── result_models.py         # pydantic result models passed between executors
-    ├── processor/
-    │   ├── processor.py             # orchestrator: config load + executor chain
-    │   ├── <duty>_executor.py       # one file per executor
-    │   └── ...
-    ├── global_config.py             # reserved — do not add models here
-    ├── config_templates/
-    │   └── config.yaml              # YAML template showing valid config structure
-    └── test_suits/
-        └── global_test_config.py    # shared test fixtures/constants
-```
-
----
-
-## How to Look Things Up
-
-| What you need | Where to look |
-|---|---|
-| CLI argument parsing | `program/app/main.py` |
-| Executor chain and flow | `program/processor/processor.py` |
-| Config structure (pydantic) | `program/models/config_models.py` |
-| Inter-executor result types | `program/models/result_models.py` |
-| YAML config structure | `program/config_templates/config.yaml` |
-| Shared test fixtures | `program/test_suits/global_test_config.py` |
-| Dependencies | `pyproject.toml` |
-
----
-
-## Architecture: Processor + Executor Chain
-
-```
-YAML Config File
-      ↓
-  Processor
-  ├─→ __init__: load + validate config → self.config
-  └─→ execute():
-        ├─→ FirstExecutor(config).execute()            → ResultA
-        ├─→ SecondExecutor(result_a, config).execute() → ResultB
-        └─→ ThirdExecutor(result_b, config).execute()  → (side effects / final output)
-```
-
-**Rules:**
-- Processor holds all executor instances and their results as `self.*`
-- Each executor receives the full config — it extracts only what it needs
-- Each executor returns a typed pydantic model (never a plain dict or tuple)
-- Executors do not call each other — Processor manages the chain
+Coding conventions and implementation patterns for this project.
+See `AI-PROGRAM-GUIDE.md` for structure. See `AI-CONFIG-GUIDE.md` for config and model reference.
 
 ---
 
 ## Coding Conventions
 
 - **Indentation:** 2 spaces — never 4 spaces or tabs
-- **Error prefix:** `❌` for all fatal errors
-- **Exit:** `sys.exit(1)` on any fatal error
+- **Error prefix:** `❌` for all fatal errors — `print(f"❌ ...")`
+- **Exit:** `sys.exit(1)` on any fatal error — never raise unhandled exceptions
+- **YAML parsing:** `yaml.safe_load()` only — `yaml.load()` is forbidden
+- **Imports:** explicit named imports — never wildcard `import *`
+
+---
+
+## Model Import Convention
+
+Each YAML config template has exactly one model file. Import only from the matching file.
+
+```python
+from models.cronjob_pipeline_config_models import PipelineConfig, PipelineItem
+from models.server_config_models import ServersConfig, ServerConfig, AuthConfig
+from models.promql_config_models import QueriesConfig, QueryConfig
+from models.range_config_models import RangesConfig, RangeConfig
+from models.output_config_models import OutputsConfig, OutputConfig, OutputDbConfig, DbEnvKeys
+from models.cronjob_export_config_models import CronjobConfig, CronjobPipelineConfig
+```
+
+Never cross-import models between config model files.
 
 ---
 
 ## Core Patterns
 
-### 1. CLI Entry Point (`main.py`)
+### CLI Entry Point (`main.py`)
 
-No logic here — only wires CLI args to Processor.
+No logic — only wires CLI args to Processor.
 
 ```python
 import argparse
 from processor.processor import Processor
 
 def main():
-  parser = argparse.ArgumentParser(description="<program description>")
+  parser = argparse.ArgumentParser(description="Build cronjob configs from PromQL pipeline config")
   parser.add_argument("-c", "--config", required=True, help="Path to config Yaml file")
   args = parser.parse_args()
 
@@ -107,30 +58,29 @@ if __name__ == "__main__":
 
 ---
 
-### 2. Processor (`processor.py`)
+### Processor (`processor.py`)
 
-Loads config, chains executors. No business logic.
+Loads and validates the entry config, then chains executors. No business logic.
 
 ```python
 import yaml, sys
 from pathlib import Path
 from pydantic import ValidationError
-from models.config_models import AppConfig
-from processor.first_executor import FirstExecutor
-from processor.second_executor import SecondExecutor
+from models.cronjob_pipeline_config_models import PipelineConfig
+from processor.some_executor import SomeExecutor
 
 class Processor:
   def __init__(self, config_path: str):
     self.config = self._load_and_validate_config(config_path)
 
-  def _load_and_validate_config(self, config_path: str) -> AppConfig:
+  def _load_and_validate_config(self, config_path: str) -> PipelineConfig:
     if not Path(config_path).exists():
       print(f"❌ Config file not found: {config_path}")
       sys.exit(1)
     try:
       with open(config_path, 'r') as f:
         yaml_data = yaml.safe_load(f)
-      return AppConfig(**yaml_data)
+      return PipelineConfig(**yaml_data)
     except ValidationError as e:
       print(f"❌ Invalid config file:")
       for error in e.errors():
@@ -138,108 +88,102 @@ class Processor:
       sys.exit(1)
 
   def execute(self):
-    self.first_executor = FirstExecutor(self.config)
-    self.first_result = self.first_executor.execute()
-
-    self.second_executor = SecondExecutor(self.first_result, self.config)
-    self.second_result = self.second_executor.execute()
+    self.some_executor = SomeExecutor(self.config)
+    self.some_result = self.some_executor.execute()
 ```
 
 ---
 
-### 3. Executor (`<duty>_executor.py`)
+### Executor (`<duty>_executor.py`)
 
-One duty per executor. Receives previous result + full config. Returns typed model.
+One duty per executor. Receives previous result + full config. Returns a typed pydantic model.
 
 ```python
-from models.config_models import AppConfig
-from models.result_models import FirstResult, SecondResult
+from models.cronjob_pipeline_config_models import PipelineConfig
+from models.some_result_models import PreviousResult, ThisResult
 
-class SecondExecutor:
-  def __init__(self, first_result: FirstResult, config: AppConfig):
-    self.first_result = first_result
-    # extract only the config section this executor needs
-    self.task_config = config.second_task_config
+class SomeExecutor:
+  def __init__(self, previous_result: PreviousResult, config: PipelineConfig):
+    self.previous_result = previous_result
+    self.task_config = config.relevant_section
 
-  def execute(self) -> SecondResult:
-    data = self._process(self.first_result)
-    return SecondResult(...)
+  def execute(self) -> ThisResult:
+    data = self._process(self.previous_result)
+    return ThisResult(...)
 
-  def _process(self, input: FirstResult) -> ...:
+  def _process(self, input: PreviousResult) -> ...:
     ...
 ```
 
-**Naming:** `<duty>_executor.py` — e.g., `data_prepare_executor.py`, `training_executor.py`
+**Naming:** `<duty>_executor.py` — describes the duty, not the mechanism.
 
 ---
 
-### 4. Config Models (`models/config_models.py`)
+### Config Models
 
-Top-level model validated on startup. Sub-models scoped to each executor's duty.
+One model file per YAML config template. Each file has a top-level wrapper model and sub-models.
 
 ```python
+# models/promql_config_models.py
 from pydantic import BaseModel
-from typing import Optional
+from typing import Literal
 
-class FirstTaskConfig(BaseModel):
-  source: str
-  timeout: int = 30
+class QueryConfig(BaseModel):
+  id: str
+  expr: str                          # not "query"
+  type: Literal["instant", "range"]
+  export_labels: list[str] = []
 
-class SecondTaskConfig(BaseModel):
-  output_dir: str
-
-class AppConfig(BaseModel):
-  first_task: FirstTaskConfig
-  second_task: SecondTaskConfig
+class QueriesConfig(BaseModel):
+  queries: list[QueryConfig]
 ```
 
+Top-level wrapper model = the model used to parse the entire YAML file via `**yaml_data`.
+
 ---
 
-### 5. Result Models (`models/result_models.py`)
+### Result Models
 
-Typed outputs passed between executors by Processor.
+Typed outputs passed between executors. Live in `program/models/` alongside config models.
 
 ```python
 from pydantic import BaseModel
 
-class FirstResult(BaseModel):
-  data: list
+class SomeResult(BaseModel):
+  items: list[str]
   count: int
-
-class SecondResult(BaseModel):
-  output_path: str
-  success: bool
 ```
 
 ---
 
-### 6. YAML Config Template (`config_templates/config.yaml`)
+## Error Handling
 
-Mirror the pydantic model structure. Use `REQUEST` as placeholder for values the user must fill in.
+```python
+# File not found
+if not Path(config_path).exists():
+  print(f"❌ Config file not found: {config_path}")
+  sys.exit(1)
 
-```yaml
-first_task:
-  source: REQUEST
-  timeout: 30
+# Pydantic validation failure
+except ValidationError as e:
+  print(f"❌ Invalid config file:")
+  for error in e.errors():
+    print(f"   - {error['loc']}: {error['msg']}")
+  sys.exit(1)
 
-second_task:
-  output_dir: REQUEST
+# General fatal error
+print(f"❌ <description of what failed>")
+sys.exit(1)
 ```
 
----
-
-## Error Handling Convention
-
-- File not found → `❌ Config file not found: <path>` + `sys.exit(1)`
-- Pydantic validation error → `❌ Invalid config file:` + per-field errors + `sys.exit(1)`
-- Always use `❌` prefix for fatal errors
-- Never swallow exceptions silently
+Never swallow exceptions silently.
 
 ---
 
-## Testing Patterns
+## Testing
 
 Tests live in `program/test_suits/`. File names must be prefixed with `test_`.
+Shared fixtures and constants go in `global_test_config.py`.
 
 ```python
 # program/test_suits/test_processor.py
@@ -250,8 +194,6 @@ def test_config_not_found():
   with pytest.raises(SystemExit):
     Processor("nonexistent.yaml")
 ```
-
-Shared fixtures and constants go in `global_test_config.py`.
 
 Run tests with:
 ```bash
@@ -264,8 +206,7 @@ pytest program/test_suits/
 
 Managed in `pyproject.toml` only — never `requirements.txt`.
 
-Current dependencies:
 - `pydantic==2.12.5` — config and result model validation
 - `PyYAML==6.0.3` — YAML parsing
-- `requests>=2.31.0` — HTTP (available for use in executors)
+- `requests>=2.31.0` — HTTP
 - `pytest==9.0.2` — testing
