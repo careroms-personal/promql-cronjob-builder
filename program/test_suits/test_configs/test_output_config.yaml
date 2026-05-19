@@ -1,0 +1,41 @@
+# Connection detail is in K8S secret
+db_connection_configs:
+  - id: postgres_sandbox
+    type: postgres
+    env_keys:
+      host: SANDBOX_POSGRES_HOST
+      port: SANDBOX_POSGRES_PORT
+      username: SANDBOX_POSGRES_USERNAME
+      password: SANDBOX_POSGRES_PASSWORD
+      database: SANDBOX_POSGRES_DATABASE
+
+schema_labels_mapping_configs:
+  - id: instance2node
+    mapping:
+      - query_label: instance
+        table_column: node
+
+output_configs:
+  - id: postgres_sandbox_cpu_30d_4_5m
+    db_config:
+      connections: postgres_sandbox
+      table: node_cpu_usage_30d_4_5m
+    mapping_config: instance2node
+
+  - id: postgres_sandbox_memory_30d_4_5m
+    db_config:
+      connections: postgres_sandbox
+      table: node_memory_usage_30d_4_5m
+    mapping_config: instance2node
+
+  - id: postgres_sandbox_cpu_7d_4_1m
+    db_config:
+      connections: postgres_sandbox
+      table: node_cpu_usage_7d_4_1m
+    mapping_config: instance2node
+
+  - id: postgres_sandbox_memory_7d_4_1m
+    db_config:
+      connections: postgres_sandbox
+      table: node_memory_usage_7d_4_1m
+    mapping_config: instance2node

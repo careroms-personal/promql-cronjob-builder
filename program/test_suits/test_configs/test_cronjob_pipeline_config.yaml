@@ -1,0 +1,44 @@
+cronjob_pipeline_export_file: "./sandbox_prometheus_query_pipeline.yaml"
+
+config_files:
+  file_path: "./"
+  server_config: "test_server_config.yaml"
+  promql_config: "test_promql_config.yaml"
+  output_config: "test_output_config.yaml"
+  range_config: "test_range_config.yaml"
+
+server_configs:
+  - sandbox_prometheus
+
+pipelines:
+  - id: cpu_query_30d_4_5m
+    metadata:
+      cluster_name: sandbox_cluster
+      environment: sandbox
+    promql_config_id: node_cpu_usage
+    output_config_id: postgres_sandbox_cpu_30d_4_5m
+    range_config_id: 30d_4_5m
+
+  - id: memory_query_30d_4_5m
+    metadata:
+      cluster_name: sandbox_cluster
+      environment: sandbox
+    promql_config_id: node_memory_usage
+    output_config_id: postgres_sandbox_memory_30d_4_5m
+    range_config_id: 30d_4_5m
+
+  - id: cpu_query_7d_4_1m
+    metadata:
+      cluster_name: sandbox_cluster
+      environment: sandbox
+    promql_config_id: node_cpu_usage
+    output_config_id: postgres_sandbox_cpu_7d_4_1m
+    range_config_id: 7d_4_1m
+
+  - id: memory_query_7d_4_1m
+    metadata:
+      cluster_name: sandbox_cluster
+      environment: sandbox
+    promql_config_id: node_memory_usage
+    output_config_id: postgres_sandbox_memory_7d_4_1m
+    range_config_id: 7d_4_1m

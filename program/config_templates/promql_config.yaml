@@ -1,0 +1,6 @@
+promql_configs:
+  - id: "query_range_1"
+    expr: 'cpu_usage_seconds_total{job="node_exporter"}'
+    export_labels:
+      - "instance"
+      - "job"

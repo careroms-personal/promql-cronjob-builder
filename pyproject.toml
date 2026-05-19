@@ -3,9 +3,9 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = ""
+name = "promql-cronjob-builder"
 version = "0.1.0"
-description = ""
+description = "Build promql for cronjob"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

@@ -1,0 +1,10 @@
+promql_configs:
+  - id: "node_cpu_usage"
+    expr: 'rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[5m])'
+    export_labels:
+      - "instance"
+
+  - id: "node_memory_usage"
+    expr: 'node_memory_Active_bytes{job="node_exporter"}'
+    export_labels:
+      - "instance"
