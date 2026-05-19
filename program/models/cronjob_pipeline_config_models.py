@@ -10,8 +10,8 @@ class ConfigFiles(BaseModel):
 class PipelineItem(BaseModel):
   id: str
   metadata: dict[str, Any]
-  promql_config_id: str
-  range_config_id: str
+  promql_config_ids: list[str]
+  range_config_ids: list[str]
 
 class PipelineConfig(BaseModel):
   pipeline_file_path: Optional[str] = None

@@ -1,10 +1,20 @@
 range_configs:
-  - id: 30d_4_5m
-    backward_amt: 30d # Backward amount per step. Only accept d=day, m=month, y=year
-    backward_steps: 4 # How many backward step
-    query_step: 5m # Query range window size (Prometheus resolution)
-
   - id: 7d_4_1m
     backward_amt: 7d
     backward_steps: 4
     query_step: 1m
+
+  - id: 7d_4_5m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 5m
+
+  - id: 7d_4_30m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 30m
+
+  - id: 7d_4_60m
+    backward_amt: 7d
+    backward_steps: 4
+    query_step: 60m

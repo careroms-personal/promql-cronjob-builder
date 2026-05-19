@@ -10,30 +10,34 @@ server_configs:
   - sandbox_prometheus
 
 pipelines:
-  - id: cpu_query_30d_4_5m
+  - id: node_cpu_rate_query_10m_windows_size
     metadata:
       cluster_name: sandbox_cluster
       environment: sandbox
-    promql_config_id: node_cpu_usage
-    range_config_id: 30d_4_5m
+    promql_config_ids: 
+      - node_cpu_usage_rate_10m
+    range_config_ids:
+      - 7d_4_1m
+      - 7d_4_5m
 
-  - id: memory_query_30d_4_5m
+  - id: node_cpu_rate_query_120m_windows_size
     metadata:
       cluster_name: sandbox_cluster
       environment: sandbox
-    promql_config_id: node_memory_usage
-    range_config_id: 30d_4_5m
+    promql_config_ids: 
+      - node_cpu_usage_rate_120m
+    range_config_ids:
+      - 7d_4_30m
+      - 7d_4_60m
 
-  - id: cpu_query_7d_4_1m
+  - id: node_memory_active_usage
     metadata:
       cluster_name: sandbox_cluster
       environment: sandbox
-    promql_config_id: node_cpu_usage
-    range_config_id: 7d_4_1m
-
-  - id: memory_query_7d_4_1m
-    metadata:
-      cluster_name: sandbox_cluster
-      environment: sandbox
-    promql_config_id: node_memory_usage
-    range_config_id: 7d_4_1m
+    promql_config_ids: 
+      - node_memory_usage
+    range_config_ids:
+      - 7d_4_1m
+      - 7d_4_5m
+      - 7d_4_30m
+      - 7d_4_60m

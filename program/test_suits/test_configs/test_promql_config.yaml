@@ -1,6 +1,11 @@
 promql_configs:
-  - id: "node_cpu_usage"
-    expr: 'rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[5m])'
+  - id: "node_cpu_usage_rate_10m"
+    expr: 'rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[10m])'
+    export_labels:
+      - "instance"
+
+  - id: "node_cpu_usage_rate_120m"
+    expr: 'rate(node_cpu_seconds_total{job="node-exporter", mode!="idle"}[120m])'
     export_labels:
       - "instance"
 
