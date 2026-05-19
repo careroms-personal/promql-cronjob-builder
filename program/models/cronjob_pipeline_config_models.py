@@ -17,6 +17,7 @@ class PipelineItem(BaseModel):
 
 class PipelineConfig(BaseModel):
   pipeline_file_path: Optional[str] = None
+  cronjob_pipeline_export_file: str
   config_files: ConfigFiles
   server_configs: list[str]
   pipelines: list[PipelineItem]

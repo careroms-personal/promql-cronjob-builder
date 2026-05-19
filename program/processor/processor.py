@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from models.cronjob_pipeline_config_models import PipelineConfig
 from .executors.cronjob_config_loader import CronjobConfigLoader
 from .executors.cronjob_config_builder import CronjobConfigBuilder
+from .executors.cronjob_config_exporter import CronjobConfigExporter
 
 class Processor:
   def __init__(self, config_path: str):
@@ -41,4 +42,5 @@ class Processor:
     cronjob_pipeline_builder = CronjobConfigBuilder(self.pipeline_config, cronjob_config_loader_result)
     cronjob_pipeline_builder_result = cronjob_pipeline_builder.execute()
 
-    print(cronjob_pipeline_builder_result)
+    cronjob_config_exporter = CronjobConfigExporter(self.pipeline_config, cronjob_pipeline_builder_result)
+    cronjob_config_exporter.execute()

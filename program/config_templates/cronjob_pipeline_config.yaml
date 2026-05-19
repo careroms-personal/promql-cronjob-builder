@@ -1,3 +1,5 @@
+cronjob_pipeline_export_file: "./query_pipeline.yaml"
+
 config_files:
   file_path: "./" # Realateive to pipeline config file
   server_config: "server_config.yaml"

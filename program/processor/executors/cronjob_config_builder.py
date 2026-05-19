@@ -19,7 +19,7 @@ class CronjobConfigBuilder:
       url=server_config.url,
       api=server_config.api,
       timeout=server_config.timeout,
-      auth=server_config.auth.model_dump() if server_config.auth else {},
+      auth=server_config.auth.model_dump(exclude_none=True) if server_config.auth else {},
       headers=server_config.headers,
     )
 
@@ -82,7 +82,6 @@ class CronjobConfigBuilder:
 
       servers.append(self._create_server_config(server_config=server_config))
     
-
     pipelines = []
 
     for p in self.pipeline_config.pipelines:
@@ -128,8 +127,10 @@ class CronjobConfigBuilder:
         ),
       ))
 
-    return pipelines
-
+    return CronjobConfig(
+      servers=servers,
+      pipelines=pipelines,
+    )
  
   def execute(self):
     return self._create_cronjob_pipeline_config()
