@@ -65,8 +65,10 @@ pipelines:
     metadata:
       cluster_name: my_cluster
       environment: production
-    promql_config_id: cpu_query
-    range_config_id: 30d_4_5m
+    promql_config_ids:
+      - cpu_query
+    range_config_ids:
+      - 30d_4_5m
 ```
 
 ### 2. Server Config
